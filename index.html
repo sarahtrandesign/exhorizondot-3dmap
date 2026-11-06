@@ -227,7 +227,7 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
 /* mini bar: song name (running text when it's long) + previous / play-pause / next */
 #yt header .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #yt.mini{width:300px;display:flex;align-items:center;padding:5px 6px;border-radius:18px}
-#yt.mini .ratio{order:-1;flex:none;width:46px;height:30px;padding-top:0;border-radius:8px;overflow:hidden;margin-right:2px}
+#yt.mini .ratio{position:fixed;left:-10000px;top:0;width:320px;height:180px;padding-top:0;opacity:0;pointer-events:none} /* same text-only bar as before; tap the song name to see the video */
 #yt.mini header{flex:1;min-width:0;padding:0;gap:2px}
 #yt.mini .tt{text-overflow:clip;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;padding-left:10px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 14px),transparent)}
 #yt.mini .tt{line-height:32px;height:32px}
@@ -325,8 +325,7 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
   #yt,body.chat-open #yt,body.joined #yt{top:calc(134px + var(--safe-t));bottom:auto;left:calc(var(--gut) + var(--safe-l));right:auto;width:calc(100vw - 2 * var(--gut) - var(--safe-l) - var(--safe-r))}
   /* phones: the mini bar sits in the top bar, between the title and the status buttons */
   #yt.mini{width:min(360px,calc(100vw - 2 * var(--gut) - var(--safe-l) - var(--safe-r)))}
-  body.yt-top #yt.mini{top:calc(9px + var(--safe-t));left:var(--yt-l);width:var(--yt-w);height:40px;padding:3px 3px 3px 2px;border-radius:999px}
-  body.yt-top #yt.mini .ratio{width:34px;height:30px;border-radius:999px 6px 6px 999px;margin-right:0}
+  body.yt-top #yt.mini{top:calc(9px + var(--safe-t));left:var(--yt-l);width:var(--yt-w);height:40px;padding:3px;border-radius:999px}
   body.yt-top #yt.mini .tt{font-size:12px;padding-left:6px}
   body.yt-top #yt.mini .x{width:28px;height:28px}
   body.yt-top #yt.mini header{gap:0}
@@ -440,13 +439,13 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
     <section data-tab="music">
       <div class="blk">
         <div class="plcard">
-          <div class="plhead"><svg class="i"><use href="#i-music"/></svg><div><b>Playlist concert · Spotify</b><small id="npTitle">Chưa bật</small></div></div>
+          <div class="plhead"><svg class="i"><use href="#i-music"/></svg><div><b>Playlist concert</b><small id="npTitle">Chưa bật</small></div></div>
           <div class="grid2">
             <button class="btn-acc" id="plShare" type="button">Bật cho cả kênh</button>
             <button class="btn-ghost" id="plPlay" type="button">Nghe một mình</button>
           </div>
         </div>
-        <p class="note">Vào sân là nhạc nền Moonlight (bản không lời) tự bật. Ai bấm “Bật cho cả kênh” thì cả kênh chuyển sang playlist concert trên Spotify, đúng bài đang phát. Đăng nhập Spotify trên trình duyệt này để nghe trọn bài, nếu không Spotify chỉ phát 30 giây mỗi bài.</p>
+        <p class="note">Vào sân là nhạc nền Moonlight (bản không lời) tự bật. Ai bấm “Bật cho cả kênh” thì cả kênh chuyển sang playlist concert, đúng đoạn đang phát.</p>
       </div>
       <div class="blk">
         <h3>Nhạc khác</h3>
@@ -2267,11 +2266,11 @@ $('#chatSend').onclick = sendChat;
 $('#chatInput').addEventListener('keydown', onEnter(sendChat));
 
 /* ---------------- music ---------------- */
-const PLAYLIST = 'PLBewmxzVBj9k'; // EXhOrizon dot setlist on YouTube (kept for old links)
+const PLAYLIST = 'PLSKsXzaALwBM'; // EXO Planet #6 – EXhOrizon (dot) playlist on YouTube
 // the concert playlist plays from Spotify; Moonlight and pasted links stay on YouTube
 const SP_LIST = '0jt8ES1VcgWBYNOu73d909';
 const SP_TRACKS = ['Lotto', 'Sweet Lies', 'Suffocate', '24/7', 'Tempo', 'Lucky', 'The First Snow', 'Universe', 'History', 'Love Shot', 'Crown', 'Monster', 'Gravity', 'Crazy', 'Moonlight Shadows', 'Artificial Love', 'The Eve', 'PLAYBOY', 'Ko Ko Bop', 'CALL ME BABY', 'Lucky One', 'Power', "Don't fight the feeling", 'Run', 'Sing For You', "I'm Home", 'Flatline', 'LOVE ME RIGHT', 'Growl', 'Paradise', 'TENDER LOVE'];
-const DEFAULT_SRC = () => ({ t: 'sp', i: 0 });
+const DEFAULT_SRC = () => ({ t: 'list', id: PLAYLIST, i: 0 });
 const isSp = () => music.src?.t === 'sp';
 const BGM = 'EO6c3SpU8EY'; // EXO – Moonlight (instrumental): plays on loop when you walk in
 const BGM_SRC = () => ({ t: 'video', id: BGM, loop: true });
@@ -2322,7 +2321,11 @@ function onYTError() {
   else if (music.src?.id === BGM) { toast('Nhạc nền chưa phát được, chuyển sang playlist concert nhé.', 4000); startSource(DEFAULT_SRC(), {}); }
   else toast('Video này không cho phát bên ngoài YouTube. Thử link khác nhé.', 4000);
 }
-function playerTitle() { try { return ytPlayer.getVideoData()?.title || ''; } catch { return ''; } }
+function cleanTitle(t) { // "EXO 엑소 'Monster' MV" → "Monster"
+  const q = t.match(/['‘’"“”「]([^'‘’"“”」]{2,60})['‘’"“”」]/); if (q) return q[1].trim();
+  return t.replace(/\b(EXO|엑소)\b/g, '').replace(/[\[(（][^\])）]*(MV|M\/V|Official|Audio|Lyrics?|Video|Live)[^\])）]*[\])）]/gi, '').replace(/\b(MV|M\/V)\b/g, '').replace(/^[\s\-–|·_]+|[\s\-–|·_]+$/g, '').trim() || t;
+}
+function playerTitle() { try { return cleanTitle(ytPlayer.getVideoData()?.title || ''); } catch { return ''; } }
 function onYTState(e) {
   ytState = e.data;
   if (isSp()) { if (e.data === 1) { try { ytPlayer.pauseVideo(); } catch {} } return; } // Spotify has the floor
@@ -2418,7 +2421,7 @@ function updateMusicUI() {
   $('#yt').classList.toggle('sp', isSp());
   $('#musicBtn').classList.toggle('on', playing);
   $('#stopMusic').disabled = !music.src;
-  const onList = isSp(), onBgm = music.src?.id === BGM;
+  const onList = isSp() || (music.src?.t === 'list' && music.src.id === PLAYLIST), onBgm = music.src?.id === BGM;
   $('#plPlay').textContent = onList && !music.shared && playing ? 'Tạm dừng' : onList && !music.shared ? 'Nghe tiếp' : 'Nghe một mình';
   $('#plShare').textContent = onList && music.shared && music.mine ? 'Đang bật cho cả kênh' : 'Bật cho cả kênh';
   $('#plShare').classList.toggle('on', !!(onList && music.shared && music.mine));
@@ -2556,8 +2559,9 @@ function followShare(sh) {
   }
   startSource(sh.src, { at: sh.at, shared: true, by: sh.by, peer: sh.peer });
 }
-$('#plPlay').onclick = () => { if (isSp() && !music.shared) togglePlay(DEFAULT_SRC); else startSource(DEFAULT_SRC(), {}); };
-$('#plShare').onclick = () => { if (music.shared && music.mine && isSp()) { closeMenu(); return; } shareSource(isSp() ? { ...music.src } : DEFAULT_SRC()); closeMenu(); };
+const onConcertList = () => music.src?.t === 'list' && music.src.id === PLAYLIST;
+$('#plPlay').onclick = () => { if (onConcertList() && !music.shared) togglePlay(DEFAULT_SRC); else startSource(DEFAULT_SRC(), {}); };
+$('#plShare').onclick = () => { if (music.shared && music.mine && onConcertList()) { closeMenu(); return; } shareSource(onConcertList() ? { ...music.src } : DEFAULT_SRC()); closeMenu(); };
 $('#ambBtn').onclick = () => { if (music.src?.id === BGM) togglePlay(BGM_SRC); else startSource(BGM_SRC(), {}); };
 $('#musicBtn').onclick = () => {
   if (music.src && $('#yt').classList.contains('tucked')) { setTucked(false); return; }
@@ -2580,7 +2584,7 @@ function hideInvite() { pendingInvite = null; $('#invite').hidden = true; }
 $('#inviteYes').onclick = () => { const sh = pendingInvite; hideInvite(); if (sh) startSource(sh.src, { at: sh.at, shared: true, by: sh.by, peer: sh.peer }); };
 $('#inviteNo').onclick = hideInvite;
 // warm up the music player once the dome is showing (or as soon as someone starts typing their name)
-const warmPlayer = () => { getPlayer().catch(() => {}); setTimeout(() => getSp().catch(() => {}), 1500); };
+const warmPlayer = () => { getPlayer().catch(() => {}); };
 if ('requestIdleCallback' in window) requestIdleCallback(warmPlayer, { timeout: 3500 }); else setTimeout(warmPlayer, 2500);
 $('#nameIn').addEventListener('focus', warmPlayer, { once: true });
 
