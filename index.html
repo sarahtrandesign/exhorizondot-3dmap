@@ -223,12 +223,30 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
 #yt header span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #yt .ratio{position:relative;padding-top:56.25%;background:#000}
 #yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-#yt.mini{width:196px}
-#yt.mini header{padding:3px 3px 3px 9px;font-size:11px;gap:4px}
-#yt.mini .x{width:26px;height:26px;font-size:14px;border-radius:7px}
 #yt .mc{display:none}
+/* mini bar: song name (running text when it's long) + previous / play-pause / next */
+#yt header .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#yt.mini{width:300px;display:flex;align-items:center;padding:5px 6px;border-radius:18px}
+#yt.mini .ratio{order:-1;flex:none;width:46px;height:30px;padding-top:0;border-radius:8px;overflow:hidden;margin-right:2px}
+#yt.mini header{flex:1;min-width:0;padding:0;gap:2px}
+#yt.mini .tt{text-overflow:clip;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;padding-left:10px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 14px),transparent)}
+#yt.mini .tt{line-height:32px;height:32px}
+#yt.mini .tt .mq{display:inline-block;white-space:nowrap}
+#yt.mini .tt .mq i{font-style:normal;padding-right:36px}
+#yt.mini .tt.run .mq{animation:marq var(--mqd,9s) linear infinite}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+#yt.mini .mc{display:grid;place-items:center}
+#yt.mini #ytTuck,#yt.mini #ytMini,#yt.mini #ytClose{display:none!important}
+#yt.mini.nonext #ytNext{display:none}
+#yt.mini .x{width:32px;height:32px;border-radius:999px;background:none;border:0;color:var(--text)}
+#yt.mini #ytPlay{background:#f4efe6;color:#14110d}
+#spBox{display:none;height:80px;padding:0 6px 6px}
+#spBox iframe{border:0;border-radius:12px;width:100%;height:80px}
+#yt.sp #ytBox{display:none}
+#yt.sp #spBox{display:block}
+#yt.sp.mini #spBox{position:fixed;left:-10000px;top:0;width:300px;opacity:0;pointer-events:none} /* still playing, just out of sight */
 #yt.tucked{opacity:0;pointer-events:none;transform:translateY(-14px);transition:opacity .2s,transform .2s}
-#yt #ytTuck{display:grid;place-items:center}
+#yt:not(.mini) #ytTuck{display:grid;place-items:center}
 #musicBtn.on.tucked-music{box-shadow:0 0 0 2px var(--gold, #e2c48f) inset}
 
 #invite{position:fixed;left:50%;top:calc(76px + var(--safe-t));transform:translateX(-50%);z-index:11;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:8px 8px 8px 14px;border-radius:999px;background:var(--panel-solid);border:1px solid var(--accent);box-shadow:0 10px 40px rgba(0,0,0,.45);font-size:13px}
@@ -305,22 +323,14 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
   #hint{bottom:calc(272px + var(--safe-b));font-size:11.5px}
   body:not(.joined) #hint{bottom:calc(76px + var(--safe-b))}
   #yt,body.chat-open #yt,body.joined #yt{top:calc(134px + var(--safe-t));bottom:auto;left:calc(var(--gut) + var(--safe-l));right:auto;width:calc(100vw - 2 * var(--gut) - var(--safe-l) - var(--safe-r))}
-  /* phones: the mini player is a slim pill (tiny video, title, play/pause, next, close); tap the title to open the full player */
-  #yt.mini{width:calc(100vw - 2 * var(--gut) - var(--safe-l) - var(--safe-r));max-width:440px;display:flex;align-items:center;gap:0;padding:4px;border-radius:999px}
-  #yt.mini .ratio{order:-1;flex:none;width:52px;height:30px;padding-top:0;border-radius:999px 8px 8px 999px;overflow:hidden}
-  #yt.mini header{flex:1;min-width:0;padding:0 0 0 8px;gap:2px}
-  #yt.mini header span{cursor:pointer;color:var(--text)}
-  #yt.mini #ytMini{display:none}
-  #yt.mini .mc{display:grid;place-items:center}
-  #yt.mini.nonext #ytNext{display:none}
-  #yt.mini .x{width:30px;height:30px;border-radius:999px}
-  /* tiny version that fits in the top bar, between the title and the status buttons */
-  body.yt-top #yt.mini{top:calc(9px + var(--safe-t));left:var(--yt-l);width:var(--yt-w);max-width:none;height:40px;padding:3px}
-  body.yt-top #yt.mini .ratio{width:42px;height:32px}
-  body.yt-top #yt.mini header{justify-content:flex-end;padding-left:4px}
-  body.yt-top #yt.mini header span,body.yt-top #yt.mini #ytNext,body.yt-top #yt.mini #ytClose,body.yt-top #yt.mini #ytTuck{display:none}
-  body.yt-top #yt.mini #ytMini{display:none;font-size:16px}
-  body.yt-top.yt-roomy #yt.mini #ytMini{display:grid;place-items:center}
+  /* phones: the mini bar sits in the top bar, between the title and the status buttons */
+  #yt.mini{width:min(360px,calc(100vw - 2 * var(--gut) - var(--safe-l) - var(--safe-r)))}
+  body.yt-top #yt.mini{top:calc(9px + var(--safe-t));left:var(--yt-l);width:var(--yt-w);height:40px;padding:3px 3px 3px 2px;border-radius:999px}
+  body.yt-top #yt.mini .ratio{width:34px;height:30px;border-radius:999px 6px 6px 999px;margin-right:0}
+  body.yt-top #yt.mini .tt{font-size:12px;padding-left:6px}
+  body.yt-top #yt.mini .x{width:28px;height:28px}
+  body.yt-top #yt.mini header{gap:0}
+  body.yt-top:not(.yt-roomy) #yt.mini #ytPrev{display:none}
   #invite{top:calc(136px + var(--safe-t))}
   #toast{top:calc(184px + var(--safe-t))}
   #welcome h2{font-size:36px}
@@ -339,6 +349,7 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
   #actions button{height:42px}
   #yt,body.joined #yt{top:auto;left:auto;bottom:calc(16px + var(--safe-b));right:calc(112px + var(--safe-r));width:min(340px,calc(100vw - 260px))}
   #yt.mini{width:min(300px,calc(100vw - 260px))}
+  body.yt-top #yt.mini{top:auto;left:auto}
   #invite,#toast{top:calc(62px + var(--safe-t))}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -429,13 +440,13 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
     <section data-tab="music">
       <div class="blk">
         <div class="plcard">
-          <div class="plhead"><svg class="i"><use href="#i-music"/></svg><div><b>Playlist concert</b><small id="npTitle">Chưa bật</small></div></div>
+          <div class="plhead"><svg class="i"><use href="#i-music"/></svg><div><b>Playlist concert · Spotify</b><small id="npTitle">Chưa bật</small></div></div>
           <div class="grid2">
             <button class="btn-acc" id="plShare" type="button">Bật cho cả kênh</button>
             <button class="btn-ghost" id="plPlay" type="button">Nghe một mình</button>
           </div>
         </div>
-        <p class="note">Vào sân là nhạc nền Moonlight (bản không lời) tự bật. Ai bấm “Bật cho cả kênh” thì cả kênh chuyển sang playlist concert, đúng đoạn đang phát.</p>
+        <p class="note">Vào sân là nhạc nền Moonlight (bản không lời) tự bật. Ai bấm “Bật cho cả kênh” thì cả kênh chuyển sang playlist concert trên Spotify, đúng bài đang phát. Đăng nhập Spotify trên trình duyệt này để nghe trọn bài, nếu không Spotify chỉ phát 30 giây mỗi bài.</p>
       </div>
       <div class="blk">
         <h3>Nhạc khác</h3>
@@ -535,8 +546,9 @@ body.chat-open #yt{right:calc(var(--gut) + 338px)}
 </div>
 
 <div id="yt" class="parked">
-  <header><span id="ytTitle">Đang phát</span><button class="x mc" id="ytPlay" type="button" aria-label="Tạm dừng"><svg viewBox="0 0 24 24" width="14" height="14"><path id="ytPlayIcon" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg></button><button class="x mc" id="ytNext" type="button" aria-label="Bài tiếp theo"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 5.5 15 12l-9 6.5zM16 5.5h2.5v13H16z" fill="currentColor"/></svg></button><button class="x" id="ytTuck" type="button" aria-label="Ẩn trình phát (nhạc vẫn chạy)"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="x" id="ytMini" type="button" aria-label="Thu nhỏ">–</button><button class="x" id="ytClose" type="button" aria-label="Tắt nhạc">×</button></header>
+  <header><span id="ytTitle" class="tt">Đang phát</span><button class="x mc" id="ytPrev" type="button" aria-label="Bài trước / phát lại từ đầu"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M18 5.5 9 12l9 6.5zM5.5 5.5H8v13H5.5z" fill="currentColor"/></svg></button><button class="x mc" id="ytPlay" type="button" aria-label="Tạm dừng"><svg viewBox="0 0 24 24" width="14" height="14"><path id="ytPlayIcon" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg></button><button class="x mc" id="ytNext" type="button" aria-label="Bài tiếp theo"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 5.5 15 12l-9 6.5zM16 5.5h2.5v13H16z" fill="currentColor"/></svg></button><button class="x" id="ytTuck" type="button" aria-label="Ẩn trình phát (nhạc vẫn chạy)"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="x" id="ytMini" type="button" aria-label="Thu nhỏ">–</button><button class="x" id="ytClose" type="button" aria-label="Tắt nhạc">×</button></header>
   <div class="ratio" id="ytBox"><div id="ytPlayer"></div></div>
+  <div id="spBox"></div>
 </div>
 
 <div id="invite" hidden>
@@ -1203,7 +1215,7 @@ function updateBursts(dt) {
     if (b.life > 2.2) { scene.remove(b.p); b.p.geometry.dispose(); b.p.material.dispose(); bursts.splice(k, 1); }
   }
 }
-// confetti: white hexagons, and butterflies in white, yellow and blue
+// confetti: white hexagons, green four-leaf clovers, and butterflies in white, yellow and blue
 function hexShape(r) {
   const sh = new THREE.Shape();
   for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + Math.PI / 6, x = Math.cos(a) * r, y = Math.sin(a) * r; k ? sh.lineTo(x, y) : sh.moveTo(x, y); }
@@ -1220,11 +1232,24 @@ function butterflyShape(s) {
   sh.bezierCurveTo(-0.56 * s, 0.52 * s, -0.15 * s, 0.46 * s, 0, 0.05 * s);          // upper left wing
   return sh;
 }
+function cloverShapes(r) { // four heart-shaped leaves, tips meeting in the middle (no stem)
+  const out = [];
+  const H = [[0, 0], [-0.1, 0.12, -0.52, 0.36, -0.52, 0.7], [-0.52, 0.94, -0.34, 1.05, -0.24, 1.05], [-0.1, 1.05, -0.02, 0.97, 0, 0.86],
+    [0.02, 0.97, 0.1, 1.05, 0.24, 1.05], [0.34, 1.05, 0.52, 0.94, 0.52, 0.7], [0.52, 0.36, 0.1, 0.12, 0, 0]];
+  for (let k = 0; k < 4; k++) {
+    const a = k * Math.PI / 2, c = Math.cos(a), s = Math.sin(a), P = (x, y) => [(x * c - y * s) * r, (x * s + y * c) * r];
+    const sh = new THREE.Shape(); sh.moveTo(...P(...H[0]));
+    for (let i = 1; i < H.length; i++) { const q = H[i]; sh.bezierCurveTo(...P(q[0], q[1]), ...P(q[2], q[3]), ...P(q[4], q[5])); }
+    out.push(sh);
+  }
+  return out;
+}
 const confMat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false });
 // a big pool so every shower is dense, and confetti from earlier showers stays on the floor until the pool wraps around
 const confSets = [
   { n: 1800, mesh: new THREE.InstancedMesh(new THREE.ShapeGeometry(hexShape(0.11)), confMat, 1800), cols: ['#eceff1'], flutter: false, fall: 1.9, perShot: 900 },
   { n: 3600, mesh: new THREE.InstancedMesh(new THREE.ShapeGeometry(butterflyShape(0.36), 5), confMat, 3600), cols: ['#eceff1', '#dcdc4c', '#1fa6e4'], flutter: true, fall: 1.35, perShot: 1800 },
+  { n: 1800, mesh: new THREE.InstancedMesh(new THREE.ShapeGeometry(cloverShapes(0.13), 5), confMat, 1800), cols: ['#56c92b', '#6fd843', '#48b524'], flutter: false, fall: 1.6, perShot: 900 },
 ];
 const confDummy = new THREE.Object3D();
 const hideMatrix = new THREE.Matrix4().makeTranslation(0, -60, 0);
@@ -1908,11 +1933,12 @@ function onPeerMusic(d, id) {
     return;
   }
   let src = null;
-  if (okId(d?.l)) src = { t: 'list', id: d.l, i: Math.floor(num(d.i, 0, 999)) };
+  if (d?.sp) src = { t: 'sp', i: Math.floor(num(d.i, 0, SP_TRACKS.length - 1)) };
+  else if (okId(d?.l)) src = { t: 'list', id: d.l, i: Math.floor(num(d.i, 0, 999)) };
   else if (typeof d?.v === 'string' && /^[\w-]{6,20}$/.test(d.v)) src = { t: 'video', id: d.v };
   if (!src) return;
   const share = { src, at: num(d.at, Date.now() - 6 * 3600e3, Date.now() + 60e3, Date.now()), by: p.av.name, peer: id };
-  const what = src.t === 'list' && src.id === PLAYLIST ? 'playlist concert' : 'nhạc';
+  const what = src.t === 'sp' || (src.t === 'list' && src.id === PLAYLIST) ? 'playlist concert' : 'nhạc';
   if (music.shared && !music.mine && music.peer === id) followShare(share);
   else if (music.src?.id === BGM && (ytState === 1 || ytState === 3)) {
     // still on the background track: switch straight over to what they started
@@ -2241,8 +2267,12 @@ $('#chatSend').onclick = sendChat;
 $('#chatInput').addEventListener('keydown', onEnter(sendChat));
 
 /* ---------------- music ---------------- */
-const PLAYLIST = 'PLBewmxzVBj9k'; // EXhOrizon dot setlist
-const DEFAULT_SRC = () => ({ t: 'list', id: PLAYLIST, i: 0 });
+const PLAYLIST = 'PLBewmxzVBj9k'; // EXhOrizon dot setlist on YouTube (kept for old links)
+// the concert playlist plays from Spotify; Moonlight and pasted links stay on YouTube
+const SP_LIST = '0jt8ES1VcgWBYNOu73d909';
+const SP_TRACKS = ['Lotto', 'Sweet Lies', 'Suffocate', '24/7', 'Tempo', 'Lucky', 'The First Snow', 'Universe', 'History', 'Love Shot', 'Crown', 'Monster', 'Gravity', 'Crazy', 'Moonlight Shadows', 'Artificial Love', 'The Eve', 'PLAYBOY', 'Ko Ko Bop', 'CALL ME BABY', 'Lucky One', 'Power', "Don't fight the feeling", 'Run', 'Sing For You', "I'm Home", 'Flatline', 'LOVE ME RIGHT', 'Growl', 'Paradise', 'TENDER LOVE'];
+const DEFAULT_SRC = () => ({ t: 'sp', i: 0 });
+const isSp = () => music.src?.t === 'sp';
 const BGM = 'EO6c3SpU8EY'; // EXO – Moonlight (instrumental): plays on loop when you walk in
 const BGM_SRC = () => ({ t: 'video', id: BGM, loop: true });
 const music = { src: null, at: 0, shared: false, mine: false, by: '', peer: null, title: '', fromBgm: false }; // src: {t:'list', id, i} | {t:'video', id}
@@ -2295,6 +2325,7 @@ function onYTError() {
 function playerTitle() { try { return ytPlayer.getVideoData()?.title || ''; } catch { return ''; } }
 function onYTState(e) {
   ytState = e.data;
+  if (isSp()) { if (e.data === 1) { try { ytPlayer.pauseVideo(); } catch {} } return; } // Spotify has the floor
   if (e.data === 0 && music.src?.loop) { try { ytPlayer.seekTo(0, true); ytPlayer.playVideo(); } catch {} }
   if (e.data === 1 && music.src) {
     music.title = playerTitle();
@@ -2309,11 +2340,85 @@ function onYTState(e) {
   }
   updateMusicUI();
 }
+/* ---- Spotify (official embed + its iFrame API) ---- */
+const sp = { paused: true, dur: 0, pos: 0, idx: 0, uri: '', started: false, target: null, skipAt: 0, names: {} };
+let spApiP = null, spCtrlP = null, spCtrl = null;
+function loadSpApi() {
+  if (spApiP) return spApiP;
+  spApiP = new Promise((res, rej) => {
+    const prev = window.onSpotifyIframeApiReady;
+    window.onSpotifyIframeApiReady = api => { try { prev?.(api); } catch {} res(api); };
+    const sc = document.createElement('script'); sc.src = 'https://open.spotify.com/embed/iframe-api/v1'; sc.async = true; sc.onerror = () => rej(new Error('sp'));
+    document.head.appendChild(sc); setTimeout(() => rej(new Error('timeout')), 15000);
+  });
+  spApiP.catch(() => { spApiP = null; });
+  return spApiP;
+}
+function getSp() {
+  if (spCtrlP) return spCtrlP;
+  spCtrlP = loadSpApi().then(api => new Promise((res, rej) => {
+    const el = document.createElement('div'); $('#spBox').appendChild(el);
+    const t = setTimeout(() => rej(new Error('sp timeout')), 15000);
+    api.createController(el, { uri: `spotify:playlist:${SP_LIST}`, width: '100%', height: 80 }, c => {
+      spCtrl = c;
+      c.addListener('ready', () => { clearTimeout(t); res(c); });
+      c.addListener('playback_update', onSpUpdate);
+    });
+  }));
+  spCtrlP.catch(() => { spCtrlP = null; });
+  return spCtrlP;
+}
+function spTitle() { return sp.names[sp.uri] || SP_TRACKS[sp.idx % SP_TRACKS.length] || 'Playlist concert'; }
+function nameFromUri(uri) { // the real song name for the track that's playing, if Spotify tells us which one it is
+  if (!uri || sp.names[uri] !== undefined) return; sp.names[uri] = '';
+  const id = uri.split(':').pop();
+  fetch(`https://open.spotify.com/oembed?url=https://open.spotify.com/track/${id}`).then(r => r.json()).then(j => { if (j?.title) { sp.names[uri] = j.title; if (isSp()) { music.title = spTitle(); updateMusicUI(); } } }).catch(() => {});
+}
+function onSpUpdate(e) {
+  const d = e?.data || {}, dur = d.duration || 0, pos = d.position || 0, uri = d.playingURI || '';
+  let changed = false;
+  if (sp.started) {
+    if (uri && sp.uri && uri !== sp.uri) changed = true;
+    else if (!uri && ((sp.dur && dur && Math.abs(dur - sp.dur) > 1500) || (sp.pos > 4000 && pos < 1500 && !d.isPaused))) changed = true;
+  }
+  if (uri) { sp.uri = uri; nameFromUri(uri); }
+  if (!d.isPaused && dur) sp.started = true;
+  if (changed) sp.idx = (sp.idx + 1) % SP_TRACKS.length;
+  sp.paused = !!d.isPaused; sp.dur = dur; sp.pos = pos;
+  if (!isSp()) { if (!sp.paused) { try { spCtrl?.pause(); } catch {} } return; }
+  // catching up with someone who opened the playlist for the channel: hop forward to their song, then their spot in it
+  const tg = sp.target;
+  if (tg && dur && !d.isBuffering) {
+    const now = performance.now();
+    if (sp.idx < tg.i && now - sp.skipAt > 900) { sp.skipAt = now; try { spCtrl.seek(Math.max(0, dur / 1000 - 0.3)); } catch {} }
+    else if (sp.idx >= tg.i) { sp.target = null; const want = (Date.now() - tg.at) / 1000; if (sp.idx === tg.i && want > 2 && want * 1000 < dur - 2000) { try { spCtrl.seek(want); } catch {} } }
+  }
+  music.title = spTitle();
+  if (isSp()) music.src.i = sp.idx;
+  if (changed && music.shared && music.mine) { music.at = Date.now() - pos; broadcastMusic(); }
+  updateMusicUI();
+}
+function spStart(src) {
+  try { ytPlayer?.pauseVideo?.(); } catch {}
+  sp.idx = 0; sp.uri = ''; sp.started = false; sp.dur = 0; sp.pos = 0;
+  sp.target = (src.i || 0) > 0 || (music.shared && !music.mine) ? { i: src.i || 0, at: music.at } : null;
+  music.title = SP_TRACKS[src.i || 0] || 'Playlist concert';
+  updateMusicUI();
+  getSp().then(c => {
+    if (!isSp()) return;
+    try { c.loadUri(`spotify:playlist:${SP_LIST}`); } catch {}
+    setTimeout(() => { try { c.play(); } catch {} }, 350);
+    // some phones only let sound start from a tap on Spotify's own button: open the player so they can
+    setTimeout(() => { if (isSp() && sp.paused) { setMini(false); setTucked(false); toast('Bấm ▶ trên khung Spotify để bắt đầu nghe', 4500); } }, 3500);
+  }).catch(() => toast('Chưa tải được Spotify. Kiểm tra mạng rồi thử lại nhé.', 4000));
+}
+function spSkip() { if (spCtrl && sp.dur) { try { spCtrl.seek(Math.max(0, sp.dur / 1000 - 0.3)); } catch {} } }
 function updateMusicUI() {
-  const playing = !!music.src && (ytState === 1 || ytState === 3);
+  const playing = !!music.src && (isSp() ? !sp.paused : (ytState === 1 || ytState === 3));
+  $('#yt').classList.toggle('sp', isSp());
   $('#musicBtn').classList.toggle('on', playing);
   $('#stopMusic').disabled = !music.src;
-  const onList = music.src?.t === 'list' && music.src.id === PLAYLIST, onBgm = music.src?.id === BGM;
+  const onList = isSp(), onBgm = music.src?.id === BGM;
   $('#plPlay').textContent = onList && !music.shared && playing ? 'Tạm dừng' : onList && !music.shared ? 'Nghe tiếp' : 'Nghe một mình';
   $('#plShare').textContent = onList && music.shared && music.mine ? 'Đang bật cho cả kênh' : 'Bật cho cả kênh';
   $('#plShare').classList.toggle('on', !!(onList && music.shared && music.mine));
@@ -2321,20 +2426,34 @@ function updateMusicUI() {
   $('#ambBtn').classList.toggle('on', onBgm && playing);
   $('#musicLbl').textContent = playing ? (onBgm ? 'Moonlight' : (music.title || 'Đang phát')) : 'Nhạc';
   const who = music.shared ? (music.mine ? 'Đang mở cho cả kênh' : `Đang nghe cùng ${music.by}`) : '';
-  $('#ytTitle').textContent = [music.title, who].filter(Boolean).join(' · ') || 'Đang tải…';
+  setRunTitle(music.title || who || 'Đang tải…');
   $('#npTitle').textContent = !music.src ? 'Chưa bật' : onBgm ? 'Đang phát nhạc nền Moonlight' : (music.title || 'Đang tải…');
   nowPlayingTitle = music.src && playing ? music.title : '';
   miniControls(playing);
 }
+let runText = null;
+function setRunTitle(text) { // song name in the bar; long names scroll like running text
+  const el = $('#ytTitle'); if (text === runText) return; runText = text;
+  el.textContent = ''; el.classList.remove('run');
+  const mq = document.createElement('span'); mq.className = 'mq';
+  const a = document.createElement('i'); a.textContent = text; mq.append(a); el.append(mq);
+  requestAnimationFrame(() => {
+    if ($('#yt').classList.contains('mini') && el.clientWidth > 0 && a.offsetWidth > el.clientWidth - 6) {
+      mq.append(a.cloneNode(true));
+      el.style.setProperty('--mqd', Math.max(6, a.offsetWidth / 28) + 's'); el.classList.add('run');
+    }
+  });
+}
+addEventListener('resize', () => { const t = runText; runText = null; if (t) setRunTitle(t); });
 function showPlayer() { placeMini(); const y = $('#yt'); if (y.classList.contains('parked')) { y.classList.remove('parked'); setMini(true); } }
 function placeMini() { // on phones, slot the mini player into the gap between the title and the status buttons
   const h1 = document.querySelector('h1'), tr = $('#topright');
   let ok = false;
   if (compactMQ.matches && innerHeight > 520 && h1 && tr) {
     const rg = document.createRange(); rg.selectNodeContents(h1);
-    const l = rg.getBoundingClientRect().right + 8, r = tr.getBoundingClientRect().left - 8, w = Math.min(170, r - l);
-    if (w >= 80) { document.body.style.setProperty('--yt-l', l + 'px'); document.body.style.setProperty('--yt-w', w + 'px'); ok = true; }
-    document.body.classList.toggle('yt-roomy', w >= 116);
+    const l = rg.getBoundingClientRect().right + 8, r = tr.getBoundingClientRect().left - 8, w = Math.min(200, r - l);
+    if (w >= 108) { document.body.style.setProperty('--yt-l', l + 'px'); document.body.style.setProperty('--yt-w', w + 'px'); ok = true; }
+    document.body.classList.toggle('yt-roomy', w >= 165);
   }
   document.body.classList.toggle('yt-top', ok);
 }
@@ -2354,6 +2473,8 @@ function startSource(src, opt = {}) {
   const sameTrack = music.src?.id === src.id && music.src?.i === src.i;
   Object.assign(music, { src: { ...src }, at: opt.at ?? Date.now(), shared: !!opt.shared, mine: !!opt.mine, by: opt.by || '', peer: opt.peer || null, title: sameTrack ? music.title : '', fromBgm: !!opt.fromBgm });
   showPlayer();
+  if (src.t === 'sp') { updateMusicUI(); spStart(src); return; }
+  try { spCtrl?.pause(); } catch {}
   const start = music.shared && !music.mine ? Math.max(0, (Date.now() - music.at) / 1000) : 0;
   ytSync = music.shared && !music.mine;
   updateMusicUI();
@@ -2371,11 +2492,13 @@ function startSource(src, opt = {}) {
 function stopMusic() {
   if (music.shared && music.mine) net.send.music?.({ stop: 1 });
   try { ytPlayer?.stopVideo?.(); } catch {}
+  try { spCtrl?.pause(); } catch {}
   if (ytBroken) { const f = $('#ytBox iframe'); if (f) f.src = 'about:blank'; ytState = -1; }
   Object.assign(music, { src: null, shared: false, mine: false, peer: null, title: '', fromBgm: false });
   parkPlayer(); updateMusicUI();
 }
 function togglePlay(fallbackSrc) {
+  if (isSp()) { if (spCtrl) { try { spCtrl.togglePlay(); } catch {} } else spStart(music.src); return; }
   if (music.src && ytBroken) { stopMusic(); return; }
   if (music.src && ytOk) {
     if (ytState === 1 || ytState === 3) { ytPlayer.pauseVideo(); return; }
@@ -2385,22 +2508,29 @@ function togglePlay(fallbackSrc) {
 }
 function miniControls(playing) {
   const y = $('#yt');
-  y.classList.toggle('nonext', !(music.src?.t === 'list' && ytOk && (!music.shared || music.mine)));
+  y.classList.toggle('nonext', !((isSp() || (music.src?.t === 'list' && ytOk)) && (!music.shared || music.mine)));
   $('#ytPlayIcon').setAttribute('d', playing ? 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z' : 'M8 5.5 19 12 8 18.5z');
   $('#ytPlay').setAttribute('aria-label', playing ? 'Tạm dừng' : 'Phát');
 }
 $('#ytPlay').onclick = () => { if (music.src) togglePlay(DEFAULT_SRC); };
-$('#ytNext').onclick = () => { try { if (ytOk && music.src?.t === 'list') ytPlayer.nextVideo(); } catch {} };
-$('#ytTitle').addEventListener('click', () => { if (compactMQ.matches && $('#yt').classList.contains('mini')) setMini(false); });
-function setMini(on) { $('#yt').classList.toggle('mini', on); $('#ytMini').textContent = on ? '+' : '–'; $('#ytMini').setAttribute('aria-label', on ? 'Phóng to' : 'Thu nhỏ'); }
+$('#ytPrev').onclick = () => {
+  if (isSp()) { try { spCtrl?.seek(0); } catch {} return; } // Spotify lets a page restart the song, not go back a track
+  try { if (music.src?.t === 'list' && ytPlayer.getCurrentTime() < 3) ytPlayer.previousVideo(); else ytPlayer.seekTo(0, true); } catch {}
+};
+$('#ytNext').onclick = () => { if (isSp()) { spSkip(); return; } try { if (ytOk && music.src?.t === 'list') ytPlayer.nextVideo(); } catch {} };
+$('#ytTitle').addEventListener('click', () => { if ($('#yt').classList.contains('mini')) setMini(false); });
+function setMini(on) { $('#yt').classList.toggle('mini', on); { const t = runText; runText = null; if (t) requestAnimationFrame(() => setRunTitle(t)); } $('#ytMini').textContent = on ? '+' : '–'; $('#ytMini').setAttribute('aria-label', on ? 'Phóng to' : 'Thu nhỏ'); }
 $('#ytMini').onclick = () => setMini(!$('#yt').classList.contains('mini'));
 $('#ytClose').onclick = stopMusic;
 $('#stopMusic').onclick = stopMusic;
-function sharePayload() { return music.src.t === 'list' ? { l: music.src.id, i: music.src.i || 0, at: music.at } : { v: music.src.id, at: music.at }; }
+function sharePayload() { if (isSp()) return { sp: 1, i: music.src.i || 0, at: music.at }; return music.src.t === 'list' ? { l: music.src.id, i: music.src.i || 0, at: music.at } : { v: music.src.id, at: music.at }; }
 function broadcastMusic(to) { if (music.src && music.shared && music.mine) net.send.music?.(sharePayload(), to); }
 function shareSource(src) {
   if (!me || net.status !== 'live') { toast('Cần vào sân và kết nối xong mới mở nhạc cho cả kênh được. Tạm thời nhạc đang phát cho riêng bạn.', 4500); startSource(src, {}); return; }
-  if (src.t === 'list' && music.src?.t === 'list' && music.src.id === src.id && ytOk && !ytBroken) {
+  if (src.t === 'sp' && isSp() && spCtrl) {
+    Object.assign(music, { shared: true, mine: true, by: '', peer: null, at: Date.now() - sp.pos }); music.src.i = sp.idx;
+    if (sp.paused) { try { spCtrl.resume(); } catch {} }
+  } else if (src.t === 'list' && music.src?.t === 'list' && music.src.id === src.id && ytOk && !ytBroken) {
     // already playing this playlist: share it from where you are
     let idx = 0, ct = 0; try { idx = Math.max(0, ytPlayer.getPlaylistIndex()); ct = ytPlayer.getCurrentTime() || 0; } catch {}
     Object.assign(music, { shared: true, mine: true, by: '', peer: null, at: Date.now() - ct * 1000 }); music.src.i = idx;
@@ -2409,6 +2539,12 @@ function shareSource(src) {
   broadcastMusic(); sysMsg('Bạn đã mở nhạc cho cả kênh'); updateMusicUI();
 }
 function followShare(sh) {
+  if (sh.src.t === 'sp' && isSp() && spCtrl && sp.started) {
+    music.at = sh.at;
+    if (sp.idx === sh.src.i) { const want = (Date.now() - sh.at) / 1000; if (Math.abs(sp.pos / 1000 - want) > 4) { try { spCtrl.seek(want); } catch {} } }
+    else sp.target = { i: sh.src.i, at: sh.at };
+    return;
+  }
   // already listening to this person: stay put if we're on the same song, otherwise jump to theirs
   if (ytOk && !ytBroken && music.src?.t === 'list' && sh.src.t === 'list' && music.src.id === sh.src.id) {
     let idx = -1; try { idx = ytPlayer.getPlaylistIndex(); } catch {}
@@ -2420,8 +2556,8 @@ function followShare(sh) {
   }
   startSource(sh.src, { at: sh.at, shared: true, by: sh.by, peer: sh.peer });
 }
-$('#plPlay').onclick = () => { if (music.src?.t === 'list' && music.src.id === PLAYLIST && !music.shared) togglePlay(DEFAULT_SRC); else startSource(DEFAULT_SRC(), {}); };
-$('#plShare').onclick = () => { if (music.shared && music.mine && music.src?.id === PLAYLIST) { closeMenu(); return; } shareSource(music.src?.t === 'list' && music.src.id === PLAYLIST ? { ...music.src } : DEFAULT_SRC()); closeMenu(); };
+$('#plPlay').onclick = () => { if (isSp() && !music.shared) togglePlay(DEFAULT_SRC); else startSource(DEFAULT_SRC(), {}); };
+$('#plShare').onclick = () => { if (music.shared && music.mine && isSp()) { closeMenu(); return; } shareSource(isSp() ? { ...music.src } : DEFAULT_SRC()); closeMenu(); };
 $('#ambBtn').onclick = () => { if (music.src?.id === BGM) togglePlay(BGM_SRC); else startSource(BGM_SRC(), {}); };
 $('#musicBtn').onclick = () => {
   if (music.src && $('#yt').classList.contains('tucked')) { setTucked(false); return; }
@@ -2438,13 +2574,13 @@ function linkFromInput() {
 $('#playMe').onclick = () => { const sr = linkFromInput(); if (sr) { startSource(sr, {}); closeMenu(); } };
 $('#playAll').onclick = () => { const sr = linkFromInput(); if (sr) { shareSource(sr); closeMenu(); } };
 $('#ytInput').addEventListener('keydown', onEnter(() => $('#playMe').click()));
-function inviteText(sh) { return sh.src.t === 'list' && sh.src.id === PLAYLIST ? `${sh.by} đang mở playlist concert cho cả kênh` : `${sh.by} đang mở nhạc cho cả kênh`; }
+function inviteText(sh) { return sh.src.t === 'sp' || (sh.src.t === 'list' && sh.src.id === PLAYLIST) ? `${sh.by} đang mở playlist concert cho cả kênh` : `${sh.by} đang mở nhạc cho cả kênh`; }
 function showInvite(sh) { pendingInvite = sh; $('#inviteTxt').textContent = inviteText(sh); $('#invite').hidden = false; sysMsg(inviteText(sh)); }
 function hideInvite() { pendingInvite = null; $('#invite').hidden = true; }
 $('#inviteYes').onclick = () => { const sh = pendingInvite; hideInvite(); if (sh) startSource(sh.src, { at: sh.at, shared: true, by: sh.by, peer: sh.peer }); };
 $('#inviteNo').onclick = hideInvite;
 // warm up the music player once the dome is showing (or as soon as someone starts typing their name)
-const warmPlayer = () => { getPlayer().catch(() => {}); };
+const warmPlayer = () => { getPlayer().catch(() => {}); setTimeout(() => getSp().catch(() => {}), 1500); };
 if ('requestIdleCallback' in window) requestIdleCallback(warmPlayer, { timeout: 3500 }); else setTimeout(warmPlayer, 2500);
 $('#nameIn').addEventListener('focus', warmPlayer, { once: true });
 
