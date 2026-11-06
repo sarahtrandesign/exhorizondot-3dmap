@@ -2270,7 +2270,19 @@ const PLAYLIST = 'PLSKsXzaALwBM'; // EXO Planet #6 – EXhOrizon (dot) playlist 
 // the concert playlist plays from Spotify; Moonlight and pasted links stay on YouTube
 const SP_LIST = '0jt8ES1VcgWBYNOu73d909';
 const SP_TRACKS = ['Lotto', 'Sweet Lies', 'Suffocate', '24/7', 'Tempo', 'Lucky', 'The First Snow', 'Universe', 'History', 'Love Shot', 'Crown', 'Monster', 'Gravity', 'Crazy', 'Moonlight Shadows', 'Artificial Love', 'The Eve', 'PLAYBOY', 'Ko Ko Bop', 'CALL ME BABY', 'Lucky One', 'Power', "Don't fight the feeling", 'Run', 'Sing For You', "I'm Home", 'Flatline', 'LOVE ME RIGHT', 'Growl', 'Paradise', 'TENDER LOVE'];
+// YouTube won't hand this playlist to embedded players as a list, but every song in it plays fine on its own,
+// so the page keeps the playlist's songs (in order) and plays them one after another itself
+const CONCERT = [['m3lvEU8YO3k', 'Moonlight'], ['uVAdqc1oX7g', 'MAMA'], ['KJevaDSz7Nc', 'Monster'], ['Q5DdTBJ-Cfg', 'Wolf'], ['NWqC0vSVbX4', 'Overdose'], ['3ELNaiY-f0U', 'Moonlight Shadows'], ['Zq5UNt9JQMM', 'Gravity'], ['FpoX3HJPZd8', 'Jekyll'], ['LHVF5UyKFwg', 'Crazy'], ['Z8OvBptveAM', 'PLAYBOY'], ['4kYC8YSuAps', 'Artificial Love'], ['gK8YC0nxNe0', 'The Eve'], ['KmRqHwJrTKQ', 'Love Shot'], ['K4v7sAgwJCU', 'Power'], ['IEhQpQR0PEU', "Don't fight the feeling"], ['fphhWhG-INs', 'Run'], ['zJZjiaVPDiM', 'Tempo'], ['J9HqEvgm3CA', 'Ko Ko Bop'], ['Wu8halh9DXs', 'CALL ME BABY'], ['r4ZPGfwqmI0', 'LOVE ME RIGHT'], ['qWvVSBUfLfE', 'Growl'], ['m3kohGqQ3ek', "Baby, Don't Cry"], ['rUbOiD192iU', 'Walk On Memories'], ['9nkIxVcBHCQ', "Don't Go"], ['R3VMOXYvjQ4', 'EL DORADO'], ['nGG42t7pm5Y', 'Back It Up'], ['ypsQ-2BMLDU', 'Forever'], ['mbiN9853aic', 'Crown'], ['3kMTU4vGvc0', 'Back Pocket'], ['6SBvwaQKHXc', 'Flatline'], ['Fl4fQY9dl1A', 'Angel']];
 const DEFAULT_SRC = () => ({ t: 'list', id: PLAYLIST, i: 0 });
+const isConcert = () => music.src?.t === 'list' && music.src.id === PLAYLIST;
+function concertGo(i, start = 0) { // play song i of the concert list
+  i = ((i % CONCERT.length) + CONCERT.length) % CONCERT.length;
+  if (!isConcert()) return;
+  const changed = music.src.i !== i; music.src.i = i; music.title = CONCERT[i][1];
+  if (changed && music.shared && music.mine) { music.at = Date.now() - start * 1000; broadcastMusic(); }
+  updateMusicUI();
+  getPlayer().then(pl => { if (isConcert() && music.src.i === i) pl.loadVideoById({ videoId: CONCERT[i][0], startSeconds: start }); }).catch(() => {});
+}
 const isSp = () => music.src?.t === 'sp';
 const BGM = 'EO6c3SpU8EY'; // EXO – Moonlight (instrumental): plays on loop when you walk in
 const BGM_SRC = () => ({ t: 'video', id: BGM, loop: true });
@@ -2317,7 +2329,8 @@ function getPlayer() {
   return playerP;
 }
 function onYTError() {
-  if (music.src?.t === 'list') { try { ytPlayer.nextVideo(); } catch {} } // skip songs that can't play outside YouTube
+  if (isConcert()) { if (!music.shared || music.mine) concertGo(music.src.i + 1); } // skip songs that can't play outside YouTube
+  else if (music.src?.t === 'list') { try { ytPlayer.nextVideo(); } catch {} }
   else if (music.src?.id === BGM) { toast('Nhạc nền chưa phát được, chuyển sang playlist concert nhé.', 4000); startSource(DEFAULT_SRC(), {}); }
   else toast('Video này không cho phát bên ngoài YouTube. Thử link khác nhé.', 4000);
 }
@@ -2330,11 +2343,13 @@ function onYTState(e) {
   ytState = e.data;
   if (isSp()) { if (e.data === 1) { try { ytPlayer.pauseVideo(); } catch {} } return; } // Spotify has the floor
   if (e.data === 0 && music.src?.loop) { try { ytPlayer.seekTo(0, true); ytPlayer.playVideo(); } catch {} }
+  if (e.data === 0 && isConcert()) concertGo(music.src.i + 1, 0);
   if (e.data === 1 && music.src) {
     music.title = playerTitle();
     if (ytSync) { ytSync = false; const want = (Date.now() - music.at) / 1000; try { if (Math.abs(ytPlayer.getCurrentTime() - want) > 2.5) ytPlayer.seekTo(want, true); } catch {} }
     let changed = false;
-    if (music.src.t === 'list') { let idx = -1; try { idx = ytPlayer.getPlaylistIndex(); } catch {} if (idx >= 0 && idx !== music.src.i) { music.src.i = idx; changed = true; } }
+    if (isConcert()) { if (!music.title) music.title = CONCERT[music.src.i][1]; }
+    else if (music.src.t === 'list') { let idx = -1; try { idx = ytPlayer.getPlaylistIndex(); } catch {} if (idx >= 0 && idx !== music.src.i) { music.src.i = idx; changed = true; } }
     if (music.shared && music.mine && (changed || anchorPending)) {
       anchorPending = false;
       try { music.at = Date.now() - ytPlayer.getCurrentTime() * 1000; } catch { music.at = Date.now(); }
@@ -2466,15 +2481,18 @@ function parkPlayer() { $('#yt').classList.add('parked'); setTucked(false); }
 function fallbackIframe(src, start) {
   const holder = $('#ytBox'); holder.textContent = '';
   const f = document.createElement('iframe'); f.title = 'YouTube'; f.allow = 'autoplay; encrypted-media; picture-in-picture';
+  const cName = src.t === 'list' && src.id === PLAYLIST ? CONCERT[(src.i || 0) % CONCERT.length][1] : '';
+  if (cName) src = { t: 'video', id: CONCERT[(src.i || 0) % CONCERT.length][0] };
   f.src = src.t === 'list'
     ? `https://www.youtube.com/embed/videoseries?list=${src.id}&index=${src.i || 0}&autoplay=1&playsinline=1&start=${start | 0}`
     : `https://www.youtube.com/embed/${src.id}?autoplay=1&playsinline=1&rel=0&start=${start | 0}${src.loop ? `&loop=1&playlist=${src.id}` : ''}`;
-  music.title = src.id === PLAYLIST ? 'Playlist concert' : src.id === BGM ? 'Moonlight (Instrumental)' : 'Video YouTube';
+  music.title = cName || (src.id === BGM ? 'Moonlight (Instrumental)' : 'Video YouTube');
   holder.appendChild(f); ytState = 1; updateMusicUI();
 }
 function startSource(src, opt = {}) {
   const sameTrack = music.src?.id === src.id && music.src?.i === src.i;
   Object.assign(music, { src: { ...src }, at: opt.at ?? Date.now(), shared: !!opt.shared, mine: !!opt.mine, by: opt.by || '', peer: opt.peer || null, title: sameTrack ? music.title : '', fromBgm: !!opt.fromBgm });
+  if (src.t === 'list' && src.id === PLAYLIST) music.title = CONCERT[(src.i || 0) % CONCERT.length][1];
   showPlayer();
   if (src.t === 'sp') { updateMusicUI(); spStart(src); return; }
   try { spCtrl?.pause(); } catch {}
@@ -2488,7 +2506,8 @@ function startSource(src, opt = {}) {
   getPlayer().then(pl => {
     if (music.src?.id !== src.id) return;
     cuedDefault = false;
-    if (src.t === 'list') pl.loadPlaylist({ list: src.id, listType: 'playlist', index: src.i || 0, startSeconds: start });
+    if (src.t === 'list' && src.id === PLAYLIST) pl.loadVideoById({ videoId: CONCERT[(src.i || 0) % CONCERT.length][0], startSeconds: start });
+    else if (src.t === 'list') pl.loadPlaylist({ list: src.id, listType: 'playlist', index: src.i || 0, startSeconds: start });
     else pl.loadVideoById({ videoId: src.id, startSeconds: start });
   }).catch(() => fallbackIframe(src, start));
 }
@@ -2518,9 +2537,9 @@ function miniControls(playing) {
 $('#ytPlay').onclick = () => { if (music.src) togglePlay(DEFAULT_SRC); };
 $('#ytPrev').onclick = () => {
   if (isSp()) { try { spCtrl?.seek(0); } catch {} return; } // Spotify lets a page restart the song, not go back a track
-  try { if (music.src?.t === 'list' && ytPlayer.getCurrentTime() < 3) ytPlayer.previousVideo(); else ytPlayer.seekTo(0, true); } catch {}
+  try { if (isConcert() && ytPlayer.getCurrentTime() < 3 && (!music.shared || music.mine)) concertGo(music.src.i - 1); else if (!isConcert() && music.src?.t === 'list' && ytPlayer.getCurrentTime() < 3) ytPlayer.previousVideo(); else ytPlayer.seekTo(0, true); } catch {}
 };
-$('#ytNext').onclick = () => { if (isSp()) { spSkip(); return; } try { if (ytOk && music.src?.t === 'list') ytPlayer.nextVideo(); } catch {} };
+$('#ytNext').onclick = () => { if (isSp()) { spSkip(); return; } if (isConcert()) { concertGo(music.src.i + 1); return; } try { if (ytOk && music.src?.t === 'list') ytPlayer.nextVideo(); } catch {} };
 $('#ytTitle').addEventListener('click', () => { if ($('#yt').classList.contains('mini')) setMini(false); });
 function setMini(on) { $('#yt').classList.toggle('mini', on); { const t = runText; runText = null; if (t) requestAnimationFrame(() => setRunTitle(t)); } $('#ytMini').textContent = on ? '+' : '–'; $('#ytMini').setAttribute('aria-label', on ? 'Phóng to' : 'Thu nhỏ'); }
 $('#ytMini').onclick = () => setMini(!$('#yt').classList.contains('mini'));
@@ -2535,7 +2554,7 @@ function shareSource(src) {
     if (sp.paused) { try { spCtrl.resume(); } catch {} }
   } else if (src.t === 'list' && music.src?.t === 'list' && music.src.id === src.id && ytOk && !ytBroken) {
     // already playing this playlist: share it from where you are
-    let idx = 0, ct = 0; try { idx = Math.max(0, ytPlayer.getPlaylistIndex()); ct = ytPlayer.getCurrentTime() || 0; } catch {}
+    let idx = 0, ct = 0; try { idx = isConcert() ? music.src.i : Math.max(0, ytPlayer.getPlaylistIndex()); ct = ytPlayer.getCurrentTime() || 0; } catch {}
     Object.assign(music, { shared: true, mine: true, by: '', peer: null, at: Date.now() - ct * 1000 }); music.src.i = idx;
     if (!(ytState === 1 || ytState === 3)) { showPlayer(); anchorPending = true; ytPlayer.playVideo(); }
   } else { startSource(src, { shared: true, mine: true, at: Date.now() }); anchorPending = true; }
@@ -2550,7 +2569,7 @@ function followShare(sh) {
   }
   // already listening to this person: stay put if we're on the same song, otherwise jump to theirs
   if (ytOk && !ytBroken && music.src?.t === 'list' && sh.src.t === 'list' && music.src.id === sh.src.id) {
-    let idx = -1; try { idx = ytPlayer.getPlaylistIndex(); } catch {}
+    let idx = -1; try { idx = isConcert() ? music.src.i : ytPlayer.getPlaylistIndex(); } catch {}
     if (idx === sh.src.i) {
       music.at = sh.at; music.src.i = idx;
       const want = (Date.now() - sh.at) / 1000; try { if (Math.abs(ytPlayer.getCurrentTime() - want) > 3) ytPlayer.seekTo(want, true); } catch {}
