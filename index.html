@@ -2348,13 +2348,13 @@ $('#chatSend').onclick = sendChat;
 $('#chatInput').addEventListener('keydown', onEnter(sendChat));
 
 /* ---------------- music ---------------- */
-const PLAYLIST = 'PLSKsXzaALwBM'; // EXO Planet #6 – EXhOrizon (dot) playlist on YouTube
+const PLAYLIST = 'PLEtpke1qmmls'; // EXhOrizon dot full setlist on YouTube
 // the concert playlist plays from Spotify; Moonlight and pasted links stay on YouTube
 const SP_LIST = '0jt8ES1VcgWBYNOu73d909';
 const SP_TRACKS = ['Lotto', 'Sweet Lies', 'Suffocate', '24/7', 'Tempo', 'Lucky', 'The First Snow', 'Universe', 'History', 'Love Shot', 'Crown', 'Monster', 'Gravity', 'Crazy', 'Moonlight Shadows', 'Artificial Love', 'The Eve', 'PLAYBOY', 'Ko Ko Bop', 'CALL ME BABY', 'Lucky One', 'Power', "Don't fight the feeling", 'Run', 'Sing For You', "I'm Home", 'Flatline', 'LOVE ME RIGHT', 'Growl', 'Paradise', 'TENDER LOVE'];
 // YouTube won't hand this playlist to embedded players as a list, but every song in it plays fine on its own,
 // so the page keeps the playlist's songs (in order) and plays them one after another itself
-const CONCERT = [['m3lvEU8YO3k', 'Moonlight'], ['uVAdqc1oX7g', 'MAMA'], ['KJevaDSz7Nc', 'Monster'], ['Q5DdTBJ-Cfg', 'Wolf'], ['NWqC0vSVbX4', 'Overdose'], ['3ELNaiY-f0U', 'Moonlight Shadows'], ['Zq5UNt9JQMM', 'Gravity'], ['FpoX3HJPZd8', 'Jekyll'], ['LHVF5UyKFwg', 'Crazy'], ['Z8OvBptveAM', 'PLAYBOY'], ['4kYC8YSuAps', 'Artificial Love'], ['gK8YC0nxNe0', 'The Eve'], ['KmRqHwJrTKQ', 'Love Shot'], ['K4v7sAgwJCU', 'Power'], ['IEhQpQR0PEU', "Don't fight the feeling"], ['fphhWhG-INs', 'Run'], ['zJZjiaVPDiM', 'Tempo'], ['J9HqEvgm3CA', 'Ko Ko Bop'], ['Wu8halh9DXs', 'CALL ME BABY'], ['r4ZPGfwqmI0', 'LOVE ME RIGHT'], ['qWvVSBUfLfE', 'Growl'], ['m3kohGqQ3ek', "Baby, Don't Cry"], ['rUbOiD192iU', 'Walk On Memories'], ['9nkIxVcBHCQ', "Don't Go"], ['R3VMOXYvjQ4', 'EL DORADO'], ['nGG42t7pm5Y', 'Back It Up'], ['ypsQ-2BMLDU', 'Forever'], ['mbiN9853aic', 'Crown'], ['3kMTU4vGvc0', 'Back Pocket'], ['6SBvwaQKHXc', 'Flatline'], ['Fl4fQY9dl1A', 'Angel']];
+const CONCERT = [['mbiN9853aic', 'Crown'], ['KJevaDSz7Nc', 'Monster'], ['sudqTX-Up2Q', 'Suffocate'], ['3ELNaiY-f0U', 'Moonlight Shadows'], ['Oth3snWRGBQ', '24/7'], ['Zq5UNt9JQMM', 'Gravity'], ['FFOLaEb7Xns', 'Sweet Lies'], ['LHVF5UyKFwg', 'Crazy'], ['gzmFD18_8-4', 'PLAYBOY'], ['4kYC8YSuAps', 'Artificial Love'], ['gK8YC0nxNe0', 'The Eve'], ['KmRqHwJrTKQ', 'Love Shot'], ['zJZjiaVPDiM', 'Tempo'], ['90USL2nsoDU', 'Lotto'], ['J9HqEvgm3CA', 'Ko Ko Bop'], ['Wu8halh9DXs', 'CALL ME BABY'], ['jUkvoXONF3k', 'Lucky One'], ['K4v7sAgwJCU', 'Power'], ['IEhQpQR0PEU', "Don't fight the feeling"], ['fphhWhG-INs', 'Run'], ['_8rXVCM9Efs', 'Sing For You'], ['OyxqEcLXuHE', 'For Life'], ['0qgcoyFlidE', 'Universe'], ['h0b4nw7NDhA', 'The First Snow'], ['WUIdkCmJaTk', "I'm Home"], ['6SBvwaQKHXc', 'Flatline'], ['usRSYPfLun4', 'History'], ['r4ZPGfwqmI0', 'LOVE ME RIGHT'], ['qWvVSBUfLfE', 'Growl']];
 const DEFAULT_SRC = () => ({ t: 'list', id: PLAYLIST, i: 0 });
 const isConcert = () => music.src?.t === 'list' && music.src.id === PLAYLIST;
 function concertGo(i, start = 0) { // play song i of the concert list
